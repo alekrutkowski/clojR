@@ -17,7 +17,7 @@
 #' @rdname thread-as
 #' @export
 `as->` <- function(value, symbol, ...)
-    threadFactory(substiSym, substitute(value), substitute(symbol), NULL, ...)
+    threadFactory(substiSym, value, substitute(symbol), NULL, ...)
 
 #' Threading a value, as the first argument, through expressions
 #'
@@ -34,7 +34,7 @@
 #' @rdname thread-first
 #' @export
 `->` <- function(value, ...)
-    threadFactory(substiPos, substitute(value), NULL, insertFirst, ...)
+    threadFactory(substiPos, value, NULL, insertFirst, ...)
 
 #' Threading a value, as the last argument, through expressions
 #'
@@ -51,7 +51,7 @@
 #' @rdname thread-last
 #' @export
 `->>` <- function(value, ...)
-    threadFactory(substiPos, substitute(value), NULL, insertLast, ...)
+    threadFactory(substiPos, value, NULL, insertLast, ...)
 
 
 threadFactory <- function(substiFUN, value, symbol, insertFUN, ...) {
