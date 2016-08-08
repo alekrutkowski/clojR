@@ -59,7 +59,7 @@ threadFactory <- function(substiFUN, value, symbol, insertFUN, ...) {
     substitute(list(...)) %>%
         as.list %>%
         tail(-1) %>%
-        substiFUN(value, symbol, insertFUN) %>%
+        substiFUN(substitute(value), symbol, insertFUN) %>%
         eval(E)
 }
 
