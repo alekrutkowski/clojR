@@ -17,7 +17,7 @@
 #' @rdname thread-as
 #' @export
 `as->` <- function(value, symbol, ...)
-    threadFactory(substiSym, value, substitute(symbol), NULL, ...)
+    threadFactory(ENV=parent.frame(), substiSym, substitute(value), substitute(symbol), NULL, ...)
 
 #' Threading a value, as the first argument, through expressions
 #'
@@ -34,7 +34,7 @@
 #' @rdname thread-first
 #' @export
 `->` <- function(value, ...)
-    threadFactory(substiPos, value, NULL, insertFirst, ...)
+    threadFactory(ENV=parent.frame(), substiPos, substitute(value), NULL, insertFirst, ...)
 
 #' Threading a value, as the last argument, through expressions
 #'
@@ -51,17 +51,15 @@
 #' @rdname thread-last
 #' @export
 `->>` <- function(value, ...)
-    threadFactory(substiPos, value, NULL, insertLast, ...)
+    threadFactory(ENV=parent.frame(), substiPos, substitute(value), NULL, insertLast, ...)
 
 
-threadFactory <- function(substiFUN, value, symbol, insertFUN, ...) {
-    E <- parent.frame()
+threadFactory <- function(ENV, substiFUN, value, symbol, insertFUN, ...)
     substitute(list(...)) %>%
         as.list %>%
-        tail(-1) %>%
-        substiFUN(substitute(value), symbol, insertFUN) %>%
-        eval(E)
-}
+        tail(-1) %>% # %T>% {(.) %>% lapply(as.list) %>% str} %>%
+        substiFUN(value, symbol, insertFUN) %>%
+        eval(ENV)
 
 
 # For `as->` --------------------------------------------------------------
@@ -77,7 +75,7 @@ recurSubsti <- function(b, a, symbol)
     b %>%
     as.list %>%
     lapply(function(el)
-        `if`(el == symbol ,
+        `if`(identical(el, symbol),
              a,
              `if`(length(el)>1,
                   recurSubsti(el, a, symbol),
@@ -91,6 +89,7 @@ substiPos <- function(listL, value, ._, insertFUN)
     listL %>%
     Reduce(function(a,b)
         b %>%
+            callIfLambda %>%
             as.list %>%
             insertFUN(a) %>%
             as.call,
@@ -106,3 +105,15 @@ insertLast <- function(List, val)
     c(List,
       val)
 
+isLambda <- function(qexpr)
+    qexpr %>%
+    as.list %>%
+    extract2(1) %>%
+    equals(quote(`function`))
+
+callIfLambda <- function(qexpr)
+    `if`(qexpr %>% isLambda,
+         qexpr %>%
+             as.expression %>%
+             as.call,
+         qexpr)

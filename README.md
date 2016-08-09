@@ -1,7 +1,7 @@
 Some Clojure-inspired functions (macros) in R
 ================
 Aleksander Rutkowski
-2016-06-28
+2016-08-09
 
 [Clojure](https://clojure.org/) is a modern [Lisp](https://en.wikipedia.org/wiki/Lisp_%28programming_language%29) dialect. Due to its Lisp/[Scheme](https://en.wikipedia.org/wiki/Scheme_%28programming_language%29) roots, R is somewhat similar (functional programming with immutable data; macros a.k.a. non-standard evaluation a.k.a. code as data a.k.a. homoiconicity), but lacks some useful and terse language constructs. This is an attempt to implement them in R.
 
@@ -12,6 +12,7 @@ The implemented functions (macros):
 -   `as->` -- see <https://clojuredocs.org/clojure.core/as-%3E>
 -   `->` -- see <https://clojuredocs.org/clojure.core/-%3E>
 -   `->>` -- see <https://clojuredocs.org/clojure.core/-%3E%3E>
+-   `cond->` and related -- generalised version inspired by <https://clojuredocs.org/clojure.core/cond-%3E>
 -   `doc` -- see <https://clojuredocs.org/clojure.repl/doc>
 
 New functions (macros) may be added gradually in the future.
@@ -142,6 +143,60 @@ caseveq(x,
 ```
 
     ## [1] 492.5
+
+#### Conditional threading
+
+``` r
+# Slightly modified (generalised) compared to the Clojure version as it is threading the
+# a value not only through the right-side expresions but also through
+# the conditions/tests (while in Clojure these are static conditions):
+`cond->`(1,               # we start with 1
+         `==`(1), `+`(1), # 1==1 is true so 1+1 is evaluated and yields 2 which is threded further
+         `<`(0), `*`(42), # 2<0 is false so the operation is skipped
+         `==`(2), `*`(3)) # 2==2 is true so 2*3 is evaluated and it finally yields 6
+```
+
+    ## [1] 6
+
+``` r
+# A version closer in spirit to the Clojure example -- the constants need to be wrapped
+# in anonymous functions or in a function which ignores its first argument
+# (see `constant` below):
+`cond->`(1,                          # we start with 1
+         function(x) TRUE, `+`(1),   # the condition is true so 1+1 yields 2
+         function(x) FALSE, `*`(42), # the condition is false so the operation is skipped
+         function(x) 2==2, `*`(3))   # 2==2 so it yields 6
+```
+
+    ## [1] 6
+
+``` r
+constant <- function(ignore_me, v) v
+
+`cond->`(1,                        # we start with 1
+         constant(TRUE), `+`(1),   # the condition is true so 1+1 yields 2
+         constant(FALSE), `*`(42), # the condition is false so the operation is skipped
+         constant(2==2), `*`(3))   # 2==2 so it yields 6
+```
+
+    ## [1] 6
+
+``` r
+# Use inside a function:
+zz <- function(v,n)
+    `cond->`(v,
+             constant(n>1), `+`(1),
+             constant(n>2), `+`(2),
+             constant(n>3), `+`(3))
+zz(10, 2.5)
+```
+
+    ## [1] 13
+
+``` r
+# Also a vectorised version `condv->` using internally `ifelse` rather than `if`
+# is available.
+```
 
 #### [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)-related
 

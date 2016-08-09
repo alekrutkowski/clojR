@@ -1,7 +1,7 @@
 Package: clojR
 Type: Package
 Title: Clojure-inspired functions (macros) in R
-Version: 0.1.0
+Version: 0.1.1
 Author: Aleksander Rutkowski
 LazyData: TRUE
 Imports:

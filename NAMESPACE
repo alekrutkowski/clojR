@@ -3,6 +3,8 @@
 export("->")
 export("->>")
 export("as->")
+export("cond->")
+export("condv->")
 export(case)
 export(caseveq)
 export(casevid)
