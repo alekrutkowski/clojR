@@ -49,8 +49,8 @@
     IF <- if (vectorised)
         quote(ifelse) else quote(`if`)
     Reduce(function(x,y)
-        bquote(.(IF)(`->`(.(x), .(y[[1]])),
-                     `->`(.(x), .(y[[2]])),
+        bquote(.(IF)(clojR::`->`(.(x), .(y[[1]])),
+                     clojR::`->`(.(x), .(y[[2]])),
                     .(x))),
         x = substitute(list(...)) %>%
             as.list %>%

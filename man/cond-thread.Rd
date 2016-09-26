@@ -19,18 +19,23 @@ the conditions/tests (while in Clojure these are static conditions).
 }
 \examples{
 # Adapted from the first example at https://clojuredocs.org/clojure.core/cond->
+
 `cond->`(1,               # we start with 1
-         `==`(1), `+`(1), # 1==1 is true so 1+1 is evaluated and yields 2 which is threded further
+         `==`(1), `+`(1), # 1==1 is true so 1+1 is evaluated and yields 2 which is threaded further
          `<`(0), `*`(42), # 2<0 is false so the operation is skipped
          `==`(2), `*`(3)) # 2==2 is true so 2*3 is evaluated and it finally yields 6
+
 # A version closer in spirit to the Clojure example -- the constants need to be wrapped
 # in anonymous functions or in a function which ignores its first argument
 # (see `constant` below):
+
 `cond->`(1,                          # we start with 1
          function(x) TRUE, `+`(1),   # the condition is true so 1+1 yields 2
          function(x) FALSE, `*`(42), # the condition is false so the operation is skipped
          function(x) 2==2, `*`(3))   # 2==2 so it yields 6
+
 constant <- function(ignore_me, v) v
+
 `cond->`(1,                        # we start with 1
          constant(TRUE), `+`(1),   # the condition is true so 1+1 yields 2
          constant(FALSE), `*`(42), # the condition is false so the operation is skipped
